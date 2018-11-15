@@ -1,0 +1,371 @@
+import pandas as pd
+import numpy as np
+import scipy.stats as ss
+from scipy.stats import norm
+from scipy.optimize import brentq
+import matplotlib.pylab as plt
+import datetime as dt
+from scipy import interpolate
+from math import exp, log
+
+# =============================================================================
+# 
+# =============================================================================
+
+today = dt.date(2013, 8, 30)
+expiry = dt.date(2015, 1, 17)
+D = (expiry-today).days
+T = D/365.0
+
+rate_df = pd.read_csv('discount.csv')
+interp = interpolate.interp1d(rate_df.iloc[:,0],rate_df.iloc[:,1])
+print(interp(D)) # Percent terms of D value in interpolate object
+
+S = 846.9
+r = interp(D)/100
+T = 1.38
+sigma = 0.2
+F = S*np.exp(r*T)
+
+
+
+def fetch():
+    
+    googcall = pd.read_csv('goog_call.csv')
+    googcall['call'] = (googcall['best_bid']+googcall['best_offer'])/2
+#    googcall.drop(['date','expiry','best_bid','best_offer'],axis=1,inplace=True)
+    
+    googput = pd.read_csv('goog_put.csv')
+    googput['put'] = (googput['best_bid']+googput['best_offer'])/2
+#    googput.drop(['date','expiry','best_bid','best_offer'],axis=1,inplace=True)
+    
+    global goog 
+    goog = pd.concat([googcall['strike'],googcall['call'],googput['put']], axis=1)
+    return goog
+
+fetch()
+
+
+
+
+
+# =============================================================================
+# 
+# =============================================================================
+
+#goog['option']= goog.apply(
+#    lambda row: row['call'] if row['strike']>F else row['put'],
+#    axis=1
+#)
+goog['callonly']= goog.apply(
+    lambda row: row['call'] if row['strike']>F else np.nan,
+    axis=1
+)
+goog['putonly']= goog.apply(
+    lambda row: row['put'] if row['strike']<F else np.nan,
+    axis=1
+)
+
+
+strikes = goog['strike']
+strikes_c = [i for i in goog['strike'] if i>F]
+strikes_p = [i for i in goog['strike'] if i<F]
+call_price = [i for i in goog['callonly'] if i>0]
+put_price = [i for i in goog['putonly'] if i>0]
+
+
+
+# =============================================================================
+# 
+# =============================================================================
+
+#
+#def BSC(S, K, r, sigma, T):
+#    d1 = (np.log(S/K)+(r+sigma**2/2)*T) / (sigma*np.sqrt(T))
+#    d2 = d1 - sigma*np.sqrt(T)
+#    return S*norm.cdf(d1) - K*np.exp(-r*T)*norm.cdf(d2)
+#
+#def BSP(S, K, r, sigma, T):
+#    d1 = (np.log(S/K)+(r+sigma**2/2)*T) / (sigma*np.sqrt(T))
+#    d2 = d1 - sigma*np.sqrt(T)
+#    return K*np.exp(-r*T)*norm.cdf(-d2) - S*norm.cdf(-d1)
+#
+#
+#
+
+#
+#
+#
+#def Black76Lognormal_C (F, K, r, sigma, T):
+#    d1 = ( log(F/K) + (sigma**2)*T/2 ) / (sigma*np.sqrt(T))
+#    d2 = ( log(F/K) - (sigma**2)*T/2 ) / (sigma*np.sqrt(T))
+#    return exp(-r*T)*( F*norm.cdf(d1) - K*norm.cdf(d2) )
+#
+#def Black76Lognormal_P (F, K, r, sigma, T):
+#    d1 = ( log(F/K) + (sigma**2)*T/2 ) / (sigma*np.sqrt(T))
+#    d2 = ( log(F/K) - (sigma**2)*T/2 ) / (sigma*np.sqrt(T))
+#    return exp(-r*T)*( K*norm.cdf(-d2) - F*norm.cdf(-d1) )
+#
+#
+#
+#
+#
+#def Black76Normal_C (F, K, r, sigma, T):
+#    d1 = (K-F)/(sigma*F*np.sqrt(T))
+#    return exp(-r*T)*( ((F-K)*norm.cdf(-d1)) + (sigma*np.sqrt(T)*F*norm.pdf(d1)) )
+#
+#def Black76Normal_P (F, K, r, sigma, T):
+#    d1 = (K-F)/(sigma*F*np.sqrt(T))
+#    return exp(-r*T)*( ((K-F)*norm.cdf(d1)) + (sigma*np.sqrt(T)*K*norm.pdf(d1)) )
+
+
+# testers 
+#K = 850
+#print(Black76Normal_C (F, K, r, sigma, T))
+#print(Black76Lognormal_C (F, K, r, sigma, T))
+#print(Call_Black76 (F, K, r, sigma, T))
+#print(BSC (S, K, r, sigma, T))
+#
+#print(Black76Normal_P (F, K, r, sigma, T))
+#print(Black76Lognormal_P (F, K, r, sigma, T))
+#print(Put_Black76 (F, K, r, sigma, T))
+#print(BSP (S, K, r, sigma, T))
+
+
+
+
+# =============================================================================
+# 
+# =============================================================================
+
+
+
+def BS_Call(S,K,T,r,sigma):
+    d1 = (np.log(S/K)+(r+(sigma**2)/2)*T)/(sigma*np.sqrt(T))
+    d2 = (np.log(S/K)+(r-(sigma**2)/2)*T)/(sigma*np.sqrt(T))
+    return S*ss.norm.cdf(d1,0,1)-K*np.exp(-r*T)*ss.norm.cdf(d2,0,1)
+
+def BS_Put(S,K,T,r,sigma):
+    d1 = (np.log(S/K)+(r+(sigma**2)/2)*T)/(sigma*np.sqrt(T))
+    d2 = (np.log(S/K)+(r-(sigma**2)/2)*T)/(sigma*np.sqrt(T))
+    return K*np.exp(-r*T)*ss.norm.cdf(-d2,0,1)-S*ss.norm.cdf(-d1,0,1)
+
+def Bach_Call(S,K,T,r,sigma):
+    x_Star = (K-S)/(S*sigma*np.sqrt(T))
+    return np.exp(-r*T)*((S-K)*ss.norm.cdf(-x_Star,0,1)+
+                         S*sigma*np.sqrt(T)*ss.norm.pdf(-x_Star,0,1))
+
+def Bach_Put(S,K,T,r,sigma):
+    x_Star = (K-S)/(S*sigma*np.sqrt(T))
+    return np.exp(-r*T)*((K-S)*ss.norm.cdf(x_Star,0,1)+
+                         S*sigma*np.sqrt(T)*ss.norm.pdf(-x_Star,0,1))
+    
+def Black76_Call(S, K, T, r, sigma):
+    F=S*np.exp(r*T)
+    d1 = (log(F/K)+0.5*(sigma**2)*T)/(sigma*np.sqrt(T))
+    d2 = (log(F/K)-0.5*(sigma**2)*T)/(sigma*np.sqrt(T))
+    return exp(-r*T)*(F*norm.cdf(d1)-K*norm.cdf(d2))
+
+def Black76_Put(S, K, T, r, sigma):
+    F=S*np.exp(r*T)
+    d1 = (log(K/F)+0.5*(sigma**2)*T)/(sigma*np.sqrt(T))
+    d2 = (log(K/F)-0.5*(sigma**2)*T)/(sigma*np.sqrt(T))
+    return exp(-r*T)*(K*norm.cdf(d1)-F*norm.cdf(d2))
+    
+def B76_LogN_Call(S,K,T,r,sigma):
+    F=S*np.exp(r*T)
+    d1 = (np.log(F/K)+(sigma**2)/2*T)/(sigma*np.sqrt(T))
+    d2 = (np.log(F/K)-(sigma**2)/2*T)/(sigma*np.sqrt(T))
+    return np.exp(-r*T)*(F*ss.norm.cdf(d1,0,1)-K*ss.norm.cdf(d2,0,1))
+
+def B76_LogN_Put(S,K,T,r,sigma):
+    F=S*np.exp(r*T)
+    d1 = (np.log(F/K)+(sigma**2)/2*T)/(sigma*np.sqrt(T))
+    d2 = (np.log(F/K)-(sigma**2)/2*T)/(sigma*np.sqrt(T))
+    return np.exp(-r*T)*(K*ss.norm.cdf(-d2,0,1)-F*ss.norm.cdf(-d1,0,1))
+
+
+
+
+def DD_Call(S,K,T,r,sigma,Beta):
+    if Beta==0:
+        F=(S*np.exp(r*T))
+        x_Star = (K-F)/(F*sigma*np.sqrt(T))
+        return np.exp(-r*T)*((F-K)*ss.norm.cdf(-x_Star,0,1)+
+                             F*sigma*np.sqrt(T)*ss.norm.pdf(-x_Star,0,1))
+    else:
+        F=(S*np.exp(r*T))/Beta
+        K=K+((1-Beta))*F
+        sigma=Beta*sigma
+        d1 = (np.log(F/K)+(sigma**2)/2*T)/(sigma*np.sqrt(T))
+        d2 = (np.log(F/K)-(sigma**2)/2*T)/(sigma*np.sqrt(T))
+        return np.exp(-r*T)*(F*ss.norm.cdf(d1,0,1)-K*ss.norm.cdf(d2,0,1))
+
+def DD_Put(S,K,T,r,sigma,Beta):
+    if Beta==0:
+        F=(S*np.exp(r*T))
+        x_Star = (K-F)/(F*sigma*np.sqrt(T))
+        return np.exp(-r*T)*((K-F)*ss.norm.cdf(x_Star,0,1)+
+                             F*sigma*np.sqrt(T)*ss.norm.pdf(-x_Star,0,1))
+    else:
+        F=(S*np.exp(r*T))/Beta
+        K=K+((1-Beta))*F
+        sigma=Beta*sigma
+        d1 = (np.log(F/K)+(sigma**2)/2*T)/(sigma*np.sqrt(T))
+        d2 = (np.log(F/K)-(sigma**2)/2*T)/(sigma*np.sqrt(T))
+        return np.exp(-r*T)*(K*ss.norm.cdf(-d2,0,1)-F*ss.norm.cdf(-d1,0,1))
+
+
+
+
+# =============================================================================
+# 
+# =============================================================================
+
+
+def impliedCallVolatility(S, K, T, r, price, model):
+    impliedvol = brentq(lambda x: price -
+                        model(S, K, T, r, x),
+                        1e-6, 1)
+    return impliedvol
+
+def impliedPutVolatility(S, K, T, r, price, model):
+    impliedvol = brentq(lambda x: price -
+                        model(S, K, T, r, x),
+                        1e-6, 1)
+    return impliedvol
+
+
+
+def impliedCallVolatility_DD (S, K, T, r, price, Beta):
+    impliedvol = brentq(lambda x: price -
+                        DD_Call(S, K, T, r, x, Beta),
+                        1e-6, 1)
+    return impliedvol
+
+def impliedPutVolatility_DD (S, K, T, r, price, Beta):
+    impliedvol = brentq(lambda x: price -
+                        DD_Put(S, K, T, r, x, Beta),
+                        1e-6, 1)
+    return impliedvol
+
+
+
+
+# =============================================================================
+# 
+# =============================================================================
+
+
+def getDDiv(Beta):
+    
+    
+    for K,i in zip(strikes_p,range(len(strikes_p))):
+        price = put_price[i]
+        impliedvol = impliedPutVolatility_DD(S, K, T, r, price, Beta)
+        DDsummary.append([K, impliedvol])
+        
+    for K,i in zip(strikes_c,range(len(strikes_c))):
+        price = call_price[i]
+        impliedvol = impliedCallVolatility_DD(S, K, T, r, price, Beta)
+        DDsummary.append([K, impliedvol])
+        
+    
+
+
+DDsummary = []
+getDDiv(0.7)
+DDsummary = pd.DataFrame(DDsummary, columns=['Strike','IV-Beta']) 
+
+
+#for i in np.linspace(0,1,6):
+#    getDDiv(i)
+    
+ 
+
+def getiv(model_C, model_P, no):
+    summary = []
+
+    for K,i in zip(strikes_p,range(len(strikes_p))):
+    #    price = BSC(S, K, r, sigma, T)
+        price = put_price[i]
+        impliedvol = impliedPutVolatility(S, K, T, r, price, model_P)
+        summary.append([K, price, impliedvol])
+        
+    for K,i in zip(strikes_c,range(len(strikes_c))):
+    #    price = BSC(S, K, r, sigma, T)
+        price = call_price[i]
+        impliedvol = impliedCallVolatility(S, K, T, r, price, model_C)
+        summary.append([K, price, impliedvol])
+        
+    summary = pd.DataFrame(summary, columns = ['Strike', 'Price', 'IV-'+str(no)])
+    globals()['summary'+str(no)] = summary   
+    return globals()['summary'+str(no)]
+
+
+getiv(Black76_Call,Black76_Put,1)
+getiv(BS_Call,BS_Put,2)
+getiv(B76_LogN_Call,B76_LogN_Put,3)
+getiv(Bach_Call, Bach_Put, 4)
+
+
+# =============================================================================
+# 
+# =============================================================================
+
+
+def SABR(F, K, T, alpha, beta, rho, nu):
+    X = K
+    if F == K:
+        numer1 = (((1 - beta)**2)/24)*alpha*alpha/(F**(2 - 2*beta))
+        numer2 = 0.25*rho*beta*nu*alpha/(F**(1 - beta))
+        numer3 = ((2 - 3*rho*rho)/24)*nu*nu
+        VolAtm = alpha*(1 + (numer1 + numer2 + numer3)*T)/(F**(1-beta))
+        sabrsigma = VolAtm
+    else:
+        z = (nu/alpha)*((F*X)**(0.5*(1-beta)))*np.log(F/X)
+        zhi = np.log((((1 - 2*rho*z + z*z)**0.5) + z - rho)/(1 - rho))
+        numer1 = (((1 - beta)**2)/24)*((alpha*alpha)/((F*X)**(1 - beta)))
+        numer2 = 0.25*rho*beta*nu*alpha/((F*X)**((1 - beta)/2))
+        numer3 = ((2 - 3*rho*rho)/24)*nu*nu
+        numer = alpha*(1 + (numer1 + numer2 + numer3)*T)*z
+        denom1 = ((1 - beta)**2/24)*(np.log(F/X))**2
+        denom2 = (((1 - beta)**4)/1920)*((np.log(F/X))**4)
+        denom = ((F*X)**((1 - beta)/2))*(1 + denom1 + denom2)*zhi
+        sabrsigma = numer/denom
+
+    return sabrsigma
+
+
+sabr1=[]
+for i in strikes:
+    sabr1.append(SABR(F,i,T, 1, 0.8, -0.32, 0.32))
+sabr1 = pd.DataFrame(sabr1, columns=['SABRsigma'])
+
+# =============================================================================
+# 
+# =============================================================================
+
+
+df = pd.concat(
+        [summary1[['Strike','IV-1']], summary2['IV-2'], summary3['IV-3'],
+         summary4['IV-4'],DDsummary['IV-Beta'],sabr1
+         ], 
+        axis=1)
+df.set_index('Strike', inplace=True)
+
+plt.rcParams["figure.figsize"]=[10,6] 
+plt.plot(df.index, df['IV-1'], 'cs', linewidth=1.0, markersize=5)
+plt.plot(df['IV-2'], 'bs', linewidth=1.0, markersize=5)
+plt.plot(df['IV-3'], 'gs', linewidth=1.0, markersize=5)
+plt.plot(df['IV-4'], 'rs', linewidth=1.0,markersize=5)
+plt.plot(df['IV-Beta'], '-', linewidth=2.0,markersize=2)
+plt.plot(df['SABRsigma'], '-', linewidth=2.0,markersize=2)
+#plt.axis([30, 170, 0, 0.5])
+plt.xlabel('Strikes')
+plt.ylabel('Implied Volatility')
+plt.grid(linestyle=':')
+plt.legend()
+plt.show()
+
+
