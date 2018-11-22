@@ -59,11 +59,11 @@ With the stock price process (discounted by the risk-free bond) expressed as a m
 \end{minipage} \\ \\
 \noindent \textbf{Derivation for Vanilla Call ($\boldsymbol{V_0^c}$) and Put ($\boldsymbol{V_0^p}$) Option Valuation Formulae}
 \begin{flalign*}
-V_0^c&=e^{-rT}\mathbb{E}[(F_T-K)^+]\\
-&=e^{-rT}\left[ \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}}\left( F_0 e^{\left( -\frac{\sigma^2 T}{2} + \sigma \sqrt{T} x \right)} - K\right)e^{-\frac{x^2}{2}} dx \right]\\
-&=e^{-rT}\left[ F_0 e^{-\frac{\sigma^2 T}{2}} \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2-2 \sigma \sqrt{T} x + \sigma^2 T - \sigma^2 T}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx\right]\\
-&=e^{-rT}\left[ F_0 \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{(x-\sigma \sqrt{T})^2}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx \right]\\
-&= e^{-rT}\left[ F_0 \Phi (-x^* + \sigma \sqrt{T}) - K \Phi (-x^*) \right]\\
+V_0^c&=e^{-rT}\mathbb{E}[(S_T-K)^+]\\
+&=e^{-rT}\left[ \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}}\left( S_0 e^{\left(r-\frac{\sigma^2}{2}\right)T+\sigma \sqrt{T} x} - K\right)e^{-\frac{x^2}{2}} dx \right]\\
+&=e^{-rT}\left[ S_0 e^{\left(r-\frac{\sigma^2}{2}\right)T}  \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2-2 \sigma \sqrt{T} x + \sigma^2 T - \sigma^2 T}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx\right]\\
+&=e^{-rT}\left[ S_0 e^{rT} \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{(x-\sigma \sqrt{T})^2}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx \right]\\
+&= e^{-rT}\left[ S_0 e^{rT} \Phi (-x^* + \sigma \sqrt{T}) - K \Phi (-x^*) \right]\\
 \boldsymbol{V_0^c }&\boldsymbol{= \boldsymbol{S_0 \Phi \left( \frac{\log\left( \frac{S_0}{K} \right) + \left( r+\frac{\sigma^2}{2} \right)T}{\sigma \sqrt{T}} \right) - K e^{-rT} \Phi \left( \frac{\log\left( \frac{S_0}{K} \right) + \left( r-\frac{\sigma^2}{2} \right)T}{\sigma \sqrt{T}} \right)}}\\
 \boldsymbol{V_0^p }&\boldsymbol{=K e^{-rT} \Phi \left( \frac{\log\left( \frac{K}{S_0} \right) - \left( r-\frac{\sigma^2}{2} \right)T}{\sigma \sqrt{T}} \right) - S_0 \Phi \left( \frac{\log\left( \frac{K}{S_0} \right) - \left( r+\frac{\sigma^2}{2} \right)T}{\sigma \sqrt{T}} \right)}
 \end{flalign*}\\
@@ -130,11 +130,11 @@ V_0^c&=e^{-rT}\mathbb{E}[(F_T-K)^+]\\
 
 \noindent \textbf{Derivation for Vanilla Call ($\boldsymbol{V_0^c}$) and Put ($\boldsymbol{V_0^p}$) Option Valuation Formulae}
 \begin{flalign*}
-V_0^c&=e^{-rT}\mathbb{E}[(S_T-K)^+]\\
-&=e^{-rT}\left[ \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}}\left( S_0 e^{\left(r-\frac{\sigma^2}{2}\right)T+\sigma \sqrt{T} x} - K\right)e^{-\frac{x^2}{2}} dx \right]\\
-&=e^{-rT}\left[ S_0 e^{\left(r-\frac{\sigma^2}{2}\right)T}  \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2-2 \sigma \sqrt{T} x + \sigma^2 T - \sigma^2 T}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx\right]\\
-&=e^{-rT}\left[ S_0 e^{rT} \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{(x-\sigma \sqrt{T})^2}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx \right]\\
-&= e^{-rT}\left[ S_0 e^{rT} \Phi (-x^* + \sigma \sqrt{T}) - K \Phi (-x^*) \right]\\
+V_0^c&=e^{-rT}\mathbb{E}[(F_T-K)^+]\\
+&=e^{-rT}\left[ \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}}\left( F_0 e^{\left( -\frac{\sigma^2 T}{2} + \sigma \sqrt{T} x \right)} - K\right)e^{-\frac{x^2}{2}} dx \right]\\
+&=e^{-rT}\left[ F_0 e^{-\frac{\sigma^2 T}{2}} \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2-2 \sigma \sqrt{T} x + \sigma^2 T - \sigma^2 T}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx\right]\\
+&=e^{-rT}\left[ F_0 \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{(x-\sigma \sqrt{T})^2}{2}} dx - K \int_{x^*}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx \right]\\
+&= e^{-rT}\left[ F_0 \Phi (-x^* + \sigma \sqrt{T}) - K \Phi (-x^*) \right]\\
 \boldsymbol{V_0^c }&\boldsymbol{= e^{-rT}\left[F_0 \Phi \left( \frac{\log\left( \frac{F_0}{K} \right) + \frac{\sigma^2 T}{2}}{\sigma \sqrt{T}} \right) - K \Phi \left( \frac{\log\left( \frac{F_0}{K} \right) - \frac{\sigma^2 T}{2}}{\sigma \sqrt{T}}  \right) \right]}\\
 \boldsymbol{V_0^p }&\boldsymbol{=e^{-rT}\left[K \Phi \left(  \frac{\log\left( \frac{K}{F_0} \right) + \frac{\sigma^2 T}{2}}{\sigma \sqrt{T}} \right) - F_0 \Phi \left( \frac{\log\left( \frac{K}{F_0} \right) - \frac{\sigma^2 T}{2}}{\sigma \sqrt{T}} \right) \right]}
 \end{flalign*}\\
