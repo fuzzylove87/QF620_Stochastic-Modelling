@@ -100,7 +100,7 @@ V_0^c&=e^{-rT}\mathbb{E}[(S_T-K)^+]\\
 	\noindent where $F_T = S_T e^{rT}$.\\ \\
 	\noindent By Itô's Formula:
 	\begin{align*}
-	dX_t &= f'(S_t) dS_t + \frac{1}{2} f''(S_t) (dS_t)^2\\
+	dX_t &= f'(F_t) dF_t + \frac{1}{2} f''(F_t) (dF_t)^2\\
 	&= \frac{1}{F_t} (\sigma F_t dW_t) - \frac{1}{2} \frac{1}{F_t^2} (\sigma^2 F_t^2 dt)\\
 	&= -\frac{1}{2} \sigma^2 dt + \sigma dW_t
 	\end{align*}
@@ -117,7 +117,7 @@ V_0^c&=e^{-rT}\mathbb{E}[(S_T-K)^+]\\
 \begin{tcolorbox}[height=12.4cm,boxsep=5pt,arc=0pt,auto outer arc,colback=white,colframe=black]
 	\noindent \textbf{Finding $\boldsymbol{x^*}$ where $\boldsymbol{F_T=K}$}
 	\begin{flalign*}
-	S_T &= K\\
+	F_T &= K\\
 	K &= F_0 \exp\left[ -\frac{1}{2} \sigma^2 T + \sigma \sqrt{T} x \right]\\
 	\log \left( \frac{K}{F_0} \right) &= -\frac{1}{2} \sigma^2 T + \sigma \sqrt{T} x\\
 	\boldsymbol{x^* }&\boldsymbol{= \frac{\log\left( \frac{K}{F_0} \right) + \frac{\sigma^2 T}{2}}{\sigma \sqrt{T}}}
