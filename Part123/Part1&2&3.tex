@@ -332,7 +332,7 @@ V_0^c&=e^{-rT}\mathbb{E}[(S_T-K)^+]\\
 
 \underline{Calibrated Results:}
 \begin{itemize}
-	\item Beta: 0.4262
+	\item Beta: 0.3658
 \end{itemize}
 
 \begin{figure}[ht]
@@ -341,9 +341,9 @@ V_0^c&=e^{-rT}\mathbb{E}[(S_T-K)^+]\\
 	%\caption{Displaced Diffusion Model Calibration}
 \end{figure}
 \noindent\\
-Implied volatility from market prices were extracted using the Displaced Diffusion (DD) model with Beta=1, equivalent to the Black-76 Lognormal option pricing model, and the resulting implied volatilities plotted as 揗arket IV?\\
+Implied volatility from market prices were extracted using the Displaced Diffusion (DD) model with Beta=1, equivalent to the Black-76 Lognormal option pricing model, and the resulting implied volatilities plotted as ``Market IV".\\
 \noindent\\
-Differing values of Betas were input into the DD model to estimate which Beta parameter would most closely represent the implied volatility observed in the market. The main challenge in fitting the model was that in attempting to fit the IV of the lower strikes, we have to accept a larger deviation in the IV of the higher strikes, and vice versa. A least-squares method was used to find the Beta that would most closely fit market IV. This resulted in Beta parameters of approximately 0.4262.\\
+Differing values of Betas were input into the DD model to estimate which Beta parameter would most closely represent the implied volatility observed in the market. The main challenge in fitting the model was that in attempting to fit the IV of the lower strikes, we have to accept a larger deviation in the IV of the higher strikes, and vice versa. A least-squares method was used to find the Beta that would most closely fit market IV. This resulted in Beta parameters of approximately 0.3658.\\
 \noindent\\
 We note that while it does a sufficiently good job at matching ATM strike IVs, it gives a poor fit for the IVs for strikes at the extreme ends. The reason for this is that the market is pricing in a much higher IV value for lower strikes, and much lower IV value for higher strikes than these models suggest. This could partially be explained by behavioural reasons rooted in risk aversion, i.e. investors are willing to pay relatively high premiums for protection against large downside moves. Investors are also less willing to pay higher premiums for much higher strikes, and this could be due to the skew of historical returns (i.e. absence of sharp spikes in upside returns). We thus need a model that is able to incorporate all these additional factors, and so we turn to the SABR model. \\
 
